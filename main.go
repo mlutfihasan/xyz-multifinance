@@ -1,33 +1,34 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"os"
+	"net/http"
 
-	"xyz-multifinance/controllers"
+	"xyz-multifinance/app"
+	"xyz-multifinance/helper"
 
-	"github.com/joho/godotenv"
+	"github.com/go-playground/validator/v10"
 )
 
-var server = controllers.Server{}
-
 func main() {
-	err := godotenv.Load()
+	configuration, err := helper.LoadConfig()
 	if err != nil {
-		log.Fatalf("Error getting env, %v", err)
-	} else {
-		fmt.Println("We are getting the env values")
+		log.Fatalln("Failed at config", err)
 	}
 
-	server.Initialize(
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"),
-	)
+	port := configuration.Port
+	db := app.ConnectDatabase(configuration)
 
-	server.Run(":8080")
+	// Validator
+	validate := validator.New()
 
+	router := app.NewRouter(db, validate)
+	server := http.Server{
+		Addr:    ":" + port,
+		Handler: router,
+	}
+	log.Printf("Server is running on port %s", port)
+
+	err = server.ListenAndServe()
+	helper.PanicIfError(err)
 }
