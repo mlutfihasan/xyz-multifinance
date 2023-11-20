@@ -47,7 +47,7 @@ func (repository *TransactionRepositoryImpl) Update(db *gorm.DB, transactionNo *
 	return transaction
 }
 
-func (repository *TransactionRepositoryImpl) Delete(db *gorm.DB, transactionNo *string) {
+func (repository *TransactionRepositoryImpl) Delete(db *gorm.DB, transactionNo *string) *domain.Transaction {
 	transaction := &domain.Transaction{}
 	tx := db.First(transaction, &domain.Transaction{TransactionNo: *transactionNo}).Updates(&domain.Transaction{
 		TransactionNo: *transactionNo,
@@ -56,4 +56,6 @@ func (repository *TransactionRepositoryImpl) Delete(db *gorm.DB, transactionNo *
 	// Deleting the Transaction from the database.
 	err := tx.Unscoped().Delete(transaction, &domain.Transaction{TransactionNo: *transactionNo}).Error
 	helper.PanicIfError(err)
+
+	return transaction
 }

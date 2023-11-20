@@ -54,7 +54,7 @@ func (repository *LoanLimitRepositoryImpl) Update(db *gorm.DB, loanLimitID *stri
 	return loanLimit
 }
 
-func (repository *LoanLimitRepositoryImpl) Delete(db *gorm.DB, loanLimitID *string) {
+func (repository *LoanLimitRepositoryImpl) Delete(db *gorm.DB, loanLimitID *string) *domain.LoanLimit {
 	idParsed, err := strconv.ParseUint(*loanLimitID, 10, 32)
 	helper.PanicIfError(err)
 
@@ -68,4 +68,6 @@ func (repository *LoanLimitRepositoryImpl) Delete(db *gorm.DB, loanLimitID *stri
 	// Deleting the LoanLimit from the database.
 	err = tx.Unscoped().Delete(loanLimit, &domain.LoanLimit{LoanLimitID: loanLimitIdParsed}).Error
 	helper.PanicIfError(err)
+
+	return loanLimit
 }

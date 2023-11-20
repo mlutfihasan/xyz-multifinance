@@ -47,7 +47,7 @@ func (repository *CustomerRepositoryImpl) Update(db *gorm.DB, customerNik *strin
 	return customer
 }
 
-func (repository *CustomerRepositoryImpl) Delete(db *gorm.DB, customerNik *string) {
+func (repository *CustomerRepositoryImpl) Delete(db *gorm.DB, customerNik *string) *domain.Customer {
 	customer := &domain.Customer{}
 	tx := db.First(customer, &domain.Customer{CustomerNik: *customerNik}).Updates(&domain.Customer{
 		CustomerNik: *customerNik,
@@ -56,4 +56,6 @@ func (repository *CustomerRepositoryImpl) Delete(db *gorm.DB, customerNik *strin
 	// Deleting the Customer from the database.
 	err := tx.Unscoped().Delete(customer, &domain.Customer{CustomerNik: *customerNik}).Error
 	helper.PanicIfError(err)
+
+	return customer
 }
